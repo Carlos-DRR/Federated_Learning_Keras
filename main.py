@@ -5,14 +5,8 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 
 from client import Client
-import copy
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
-import tensorflow as tf
 from tensorflow import keras
-import numpy as np
 import pandas as pd
 from server import Server
 
