@@ -1,105 +1,90 @@
 import numpy as np
-
+import copy
 class Utils:
-    def __init__(self, dataset, target_attribute):
+    def __init__(self, dataset, target_attribute, groups):
         self.dataset = dataset
-        self.get_max_samples_by_label(target_attribute)
+        self.target_attribute = target_attribute
+        self.total_samples = len(self.dataset)/groups
+        self.get_dataset_proportions(target_attribute)
+        self.get_dataset_samples_by_proportions()
+  
+     
+    def get_stratified_sample(self, target_attribute, n_groups):
+        groups_list = []
+        for i in range(0, n_groups):
+            sample = \
+            self.dataset.groupby(target_attribute, group_keys=False).\
+                apply(lambda x: x.sample(int(np.rint(self.total_samples*len(x)/len(self.dataset))))).\
+                sample(frac=1).reset_index(drop=True)
+            groups_list.append(sample)
+        return groups_list
     
+    # [82, 17]
+    def get_dataset_proportions(self, target_attribute):
+        samples = list((self.dataset['Label'].value_counts()/self.dataset['Label'].count())*100)
+        self.dataset_proportions = samples
 
-    # recebe dist = [['anomalia', classe1%], ['normal', classe2%],... ,['ataque',classen%]]
-    # ex: classe1% = 0.70
-    # listas distribution_list e labels  tem o mesmo tamanho
-    # ex: labels = [anomalia, normal] distribution_list
-    def print_dataset_size(self):
-        print('O dataset tem ' + str(len(self.dataset)) + ' registros')
-    
-    def get_max_samples_by_label(self, target_attribute):
-        total_records = len(self.dataset)
-        classes_percentage = list((self.dataset[target_attribute].value_counts()/self.dataset[target_attribute].count())*100)
-        classes_samples = []
-        for percentage in classes_percentage:
-            records = ((percentage/100) * total_records)
-            classes_samples.append(np.floor(records))
+    # [124593, 26712]
+    def get_dataset_samples_by_proportions(self):
+        samples_by_proportions = []
+        for sample_prop in self.dataset_proportions:
+            sample_value = np.floor((self.total_samples * sample_prop)/100)
+            samples_by_proportions.append(sample_value)
+        self.samples_by_proportions = samples_by_proportions
+
+    # [[60,30,10], [90,10], [50,50]]
+    def get_samples_proportions(self, proportions_list, target_attribute):  
+        proportions_list_temp = copy.deepcopy(proportions_list)       
+        list_datasets = []
+
+        for proportions in proportions_list_temp:
+            samples_by_prop_new = [0] * len(proportions)
+            min_proportion_value = min(proportions)
+            sample_prop = (sum(self.samples_by_proportions)* min_proportion_value)/100
+
+            if sample_prop > min(self.samples_by_proportions):
+                min_sample_value = min(self.samples_by_proportions)#/len(proportions_list)
+            else:
+                min_sample_value = sample_prop
             
-        self.max_classes_samples_by_label = classes_samples
-        return classes_samples
-    
-    '''
-        [[0.7, 0.3],
-         [0.3, 0.7],
-         [0.5, 0.5]]
-    
-    '''
-    def get_max_proportional_samples_by_label(self, distribution_list):
-        classes_multiplier = []
-        for dist in zip(*distribution_list):
-            print(dist)
-            print(sum(dist))
-            classes_multiplier.append(sum(dist))
-        
-        samples_sizes = []
-        for i in range(0, len(self.max_classes_samples_by_label)):
-            samples_sizes.append(self.max_classes_samples_by_label[i]/classes_multiplier[i])
-        print(samples_sizes)
-        self.max_proportional_samples_by_label = samples_sizes
-        '''
-            [A_samples, N_samples]
-        
-        '''
-        return samples_sizes
-        
-    '''
-            A   N
-        [[0.7, 0.3],
-         [0.3, 0.7],
-         [0.5, 0.5]]
-    
-    '''
-    def get_stratified_sample(self, distribution_list, target_attribute):
+            min_value_index = proportions.index(min(proportions))
+            samples_by_prop_new[min_value_index] = np.floor(min_sample_value)
+            proportions.remove(min(proportions))
+            
+            next_index = min_value_index
 
-        labels = np.unique(list(self.dataset[target_attribute])) # [Anomaly, Normal]
-        max_proportions_list = self.get_max_proportional_samples_by_label(distribution_list) #[A_max_qtd, N_max_qtd]
-        for prop in max_proportions_list:
-            print('a')
-            print(prop)
-        datasets_groups = []
-        for proportions in distribution_list: # [[0.7, 0.3],[0.3, 0.7],[0.5, 0.5]]
-            samples_by_labels = []
-            for i in range(0, len(proportions)):
-                samples = (max_proportions_list[i] * proportions[i])
+            while len(proportions) > 0:
+                proportion = proportions[0]
+                next_index = next_index - 1
+
+                samples = (min_sample_value * proportion)/min_proportion_value
+                samples_by_prop_new [next_index] = np.floor(samples)
                 
-                #print(samples)
-                samples = int(np.floor(samples)) # qtd de amostras para as proporções máximas consideradas
-                print(str(max_proportions_list[i]) + " * " + str(proportions[i]) + " = " + str(samples))
-                samples_df = self.dataset[self.dataset[target_attribute] == labels[i]].sample(n = samples)
+                proportions.remove(proportion)
+
+
+            list_datasets.append(samples_by_prop_new)
+        
+        #print(list_datasets)
+        return list_datasets
+    
+    def get_samples_by_proportions(self, proportios_list, groups_list):
+        labels = np.unique(list(self.dataset[self.target_attribute ])) # [Anomaly, Normal]
+        datasets_groups = []
+        for records in proportios_list:
+            samples_by_labels = []
+            for i in range(0, len(records)):
+                #print(int(records[i]))
+                samples_df = self.dataset[self.dataset[self.target_attribute] == labels[i]].sample(n = int(records[i]))
                 self.dataset.drop(samples_df.index, axis=0,inplace = True)
                 self.dataset.reset_index(inplace=True, drop=True)
                 samples_by_labels.append(samples_df)
+                print('Deu')
+                print('Quantidade de registros normais restantes: ' + str(len(self.dataset[self.dataset['Label'] == 'Normal'])))
             group_dataset = pd.concat(samples_by_labels, ignore_index= True)
             datasets_groups.append(group_dataset)
-        
         return datasets_groups
-    '''
-    def get_stratified_sample(self, sample_size, distribution_list, target_attribute):
-        samples_by_labels = []
-        for dist in distribution_list:
-            samples = (sample_size * dist[1])
-            samples = int(np.floor(samples))
-            #print(samples)
-            samples_df = self.dataset[self.dataset[target_attribute] == dist[0]].sample(n = samples)
-            self.dataset.drop(samples_df.index, axis=0,inplace = True)
-            self.dataset.reset_index(inplace=True, drop=True)
-            samples_by_labels.append(samples_df)
-        group_dataset = pd.concat(samples_by_labels, ignore_index= True)
-        return group_dataset'''
-    '''        
-    def get_stratified_sample(self, target_attribute, sample_size):
-        sample = \
-        self.dataset.groupby(target_attribute, group_keys=False).\
-            apply(lambda x: x.sample(int(np.rint(sample_size*len(x)/len(self.dataset))))).\
-            sample(frac=1).reset_index(drop=True)
-        return sample'''
-            
+    
     def get_dataset(self):
         return self.dataset
     
@@ -107,13 +92,18 @@ import pandas as pd
 
 base = pd.read_csv('C:/Users/carlo/Desktop/Mestrado/Experimento FL/Etapa 1 - Escolha de modelo e data mining/IoTID20/IoTID20_preprocessada.csv')
 
-#print(np.unique(base['Label']))
- 
-a = (base['Label'].value_counts()/base['Label'].count())*100
-print(a)
 
 
-utl = Utils(base, 'Label')
+utl = Utils(base, 'Label', 5)
+
+#prop_records = utl.get_samples_proportions([[70,30], [30,70], [50,50], [90,10], [10,90]], 'Label')
+l = utl.get_stratified_sample('Label', 5)
+
+
+
+
+#for group in groups:
+#    print((group['Label'].value_counts()/group['Label'].count())*100)
 '''
 x = utl.get_stratified_sample(47014, [['Anomaly', 0.3], ['Normal', 0.7]], 'Label') # 70 30
 y = utl.get_stratified_sample(47014, [['Anomaly', 0.7], ['Normal', 0.3]], 'Label')
@@ -122,24 +112,3 @@ w = utl.get_stratified_sample(30261, [['Anomaly', 0.3], ['Normal', 0.2]], 'Label
 k = utl.get_stratified_sample(30261, [['Anomaly', 0.5], ['Normal', 0.2]], 'Label')
 #x = utl.split_dataset_n_distributions([['Anomaly', 0.7], ['Normal', 0.3]], 5, 'Label')'''
 
-#l = utl.maximum_samples_by_label('Label')
-#for x in l:
-#    print(x)
-    
-dist_list = [
-     [0.3, 0.7],
-     [0.7, 0.3],
-     [0.2, 0.8]]
-
-dataframes = utl.get_stratified_sample(dist_list, 'Label')
-#print(dataframes)
-
-for dataframe in dataframes:
-    #a = (utl.get_dataset()['Label'].value_counts()/utl.get_dataset()['Label'].count())*100
-    print((dataframe['Label'].value_counts()/dataframe['Label'].count())*100)
-
-#a = (utl.get_dataset()['Label'].value_counts()/utl.get_dataset()['Label'].count())*100
-#print(list(a))
-
-#print(np.unique(base['Label'], return_counts=True))
-#utl.print_dataset_size()
