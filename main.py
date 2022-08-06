@@ -15,7 +15,7 @@ from utils import Utils
 initializer = tf.keras.initializers.RandomUniform(seed=2)
 initializer._random_generator._force_generator = True
 bias = tf.keras.initializers.Zeros()
-'''
+
 model = keras.models.Sequential([
     keras.layers.Dense(2, 
                        input_dim=12, 
@@ -26,8 +26,10 @@ model = keras.models.Sequential([
                        activation = 'sigmoid',
                        kernel_initializer = initializer,
                        bias_initializer = bias),
-])'''
+])
 
+
+'''
 model = keras.models.Sequential([
     keras.layers.Dense(30, 
                        input_dim=12, 
@@ -43,11 +45,22 @@ model = keras.models.Sequential([
                        kernel_initializer = initializer,
                        bias_initializer = bias),
 ])
-
+'''
 model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss='binary_crossentropy')
 
 base = pd.read_csv('C:/Users/carlo/Desktop/Mestrado/Experimento FL/Etapa 1 - Escolha de modelo e data mining/IoTID20/IoTID20_preprocessada.csv')
 
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+
+colunas = list(base.columns)
+colunas.remove('Label')
+
+
+base[colunas] = scaler.fit_transform(base[colunas])
+
+                 #83 17
 train_dataset, test_dataset = train_test_split(base, test_size=0.1, stratify=base['Label'])
 
 '''
@@ -60,7 +73,7 @@ print("Test dist")
 print(test_set_distribution)
 '''
 
-utl = Utils(base, 'Label', [[70,30], [30,70], [50,50]])
+utl = Utils(base, 'Label', [[70,30], [30, 70], [50, 50]])
 
 
 

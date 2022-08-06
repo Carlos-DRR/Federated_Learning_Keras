@@ -2,8 +2,6 @@ import os
 #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID" #If the line below doesn't work, uncomment this line (make sure to comment the line below); it should help.
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-
-from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report
 
@@ -39,7 +37,12 @@ class Server:
         new_model = keras.models.clone_model(self.server_model)
         if weights != 0:
             new_model.set_weights(weights)
+       
+        #print("Clone server model: antes do compile")
+        #print(new_model.get_weights()) #printa o peso aqui
         new_model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss='binary_crossentropy')
+        #print("Clone server model: depois do compile")
+        #print(new_model.get_weights())#printa o peso aqui
         return new_model
     
     def updated_clients_models(self, weights=0):
@@ -92,7 +95,7 @@ class Server:
             #new_global_model.set_weights(*new_weights)
             #self.server_model = new_global_model
             self.updated_clients_models(*new_weights)
-        
+            
         
         self.server_model = self.clone_server_model(*new_weights)
         
@@ -102,10 +105,7 @@ class Server:
         X = dataset.iloc[:, 0:len(dataset.columns) - 1].values
         y = dataset.iloc[:, len(dataset.columns) - 1].values
         
-        scaler = StandardScaler()
         le = LabelEncoder()
-        
-        X = scaler.fit_transform(X)
         y = le.fit_transform(y)
         return X, y
     
