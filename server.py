@@ -78,27 +78,25 @@ class Server:
         #print('depois da soma')
         #print(*new_weights)
         return new_weights
-        #model3.set_weights(*new_weights)
+
     def train_federated(self):
+        new_weights = []
         for i in range(0, self.global_epochs):
             print("Época Global: " + str(i+1))
             for client in self.clients:
                 print("Client: " + str(client.get_client_id()))
                 client.train(self.clients_local_epochs, self.batch_size)
-            #fedavg
+
             new_weights = self.federated_avarage()
             
             #print("Pesos federados")
             #print(new_weights)
             
-            #new_global_model = keras.models.clone_model(self.server_model)
-            #new_global_model.set_weights(*new_weights)
-            #self.server_model = new_global_model
             self.updated_clients_models(*new_weights)
-            
+
         
         self.server_model = self.clone_server_model(*new_weights)
-        
+
         return self.server_model
 
     def preprocess_dataset(self, dataset):
@@ -114,5 +112,8 @@ class Server:
         y_pred = self.server_model.predict(X)
         y_pred_binary = np.around(y_pred)
         return classification_report(y, y_pred_binary, digits=4)
+    
+    def get_server_model(self):
+        return self.server_model
 
     

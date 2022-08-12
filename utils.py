@@ -12,13 +12,13 @@ class Utils:
         self.get_dataset_proportions(target_attribute)
         self.get_dataset_samples_by_proportions()
         self.get_samples_proportions() # self.desired_samples_by_prop
-        self.get_stratified_sample(target_attribute) # self.groups_list
-
-    def get_stratified_sample(self, target_attribute):
+        #self.get_stratified_sample(target_attribute) # self.groups_list
+        
+    def get_stratified_sample(self):
         groups_list = []
         for i in range(0, self.n_groups):
             sample = \
-            self.dataset.groupby(target_attribute, group_keys=False).\
+            self.dataset.groupby(self.target_attribute, group_keys=False).\
                 apply(lambda x: x.sample(int(np.rint(self.total_samples*len(x)/len(self.dataset))))).\
                 sample(frac=1).reset_index(drop=True)
             groups_list.append(sample)
@@ -82,6 +82,7 @@ class Utils:
         return list_datasets
 
     def get_samples_by_proportions(self):
+        self.get_stratified_sample()
         proportions_list = self.desired_samples_by_prop
         groups_list = self.groups_list
         labels = np.unique(list(self.dataset[self.target_attribute ])) # [Anomaly, Normal]
