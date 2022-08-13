@@ -99,6 +99,16 @@ class Server:
 
         return self.server_model
 
+    def preprocess_dataset(self, validation_set=None):
+        if validation_set is None:
+            X = self.dataset.iloc[:, 0:len(self.dataset.columns) - 1].values
+            y = self.dataset.iloc[:, len(self.dataset.columns) - 1].values
+        else:
+            X = validation_set.iloc[:, 0:len(validation_set.columns) - 1].values
+            y = validation_set.iloc[:, len(validation_set.columns) - 1].values
+
+        return X, y
+    '''
     def preprocess_dataset(self, dataset):
         X = dataset.iloc[:, 0:len(dataset.columns) - 1].values
         y = dataset.iloc[:, len(dataset.columns) - 1].values
@@ -106,12 +116,12 @@ class Server:
         le = LabelEncoder()
         y = le.fit_transform(y)
         return X, y
-    
+    '''
     def get_metrics(self, validation_set):
-        X, y = self.preprocess_dataset(validation_set)
-        y_pred = self.server_model.predict(X)
+        X_test, y_test = self.preprocess_dataset(validation_set)
+        y_pred = self.server_model.predict(X_test)
         y_pred_binary = np.around(y_pred)
-        return classification_report(y, y_pred_binary, digits=4)
+        return classification_report(y_test, y_pred_binary, digits=4)
     
     def get_server_model(self):
         return self.server_model

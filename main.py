@@ -71,12 +71,17 @@ clients_list = [client1, client2, client3, client4, client5]
 clients_dataset_sizes = [client1.get_dataset_size(), client2.get_dataset_size(), client3.get_dataset_size(), client4.get_dataset_size(), client5.get_dataset_size()]
 
             #clients, dataset_sizes, model, clients_local_epochs, batch_size, global_epochs
+#server = Server(clients_list, clients_dataset_sizes, model, 100, None, 100)
 server = Server(clients_list, clients_dataset_sizes, model, 100, None, 100)
 
-global_model = server.train_federated()
+server.train_federated()
 
+#FAZER O CROSS VALIDATION
+'''
 for client in clients_list:
     validation_set = copy.deepcopy(test_dataset)
     print("Client: " + str(client.get_client_id()))
     print(client.get_metrics(validation_set))
-    
+'''
+print("Modelo do servidor")
+print(server.get_metrics(test_dataset))
