@@ -1,0 +1,110 @@
+Iteração do Cross Validation Estratificado: 1
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9315    0.9993    0.9642     12460
+           1     0.9949    0.6574    0.7917      2671
+
+    accuracy                         0.9389     15131
+   macro avg     0.9632    0.8284    0.8780     15131
+weighted avg     0.9427    0.9389    0.9338     15131
+
+Iteração do Cross Validation Estratificado: 2
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9428    0.9990    0.9701     12460
+           1     0.9933    0.7173    0.8330      2671
+
+    accuracy                         0.9492     15131
+   macro avg     0.9680    0.8581    0.9016     15131
+weighted avg     0.9517    0.9492    0.9459     15131
+
+Iteração do Cross Validation Estratificado: 3
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9545    0.9991    0.9763     12460
+           1     0.9947    0.7776    0.8729      2671
+
+    accuracy                         0.9600     15131
+   macro avg     0.9746    0.8884    0.9246     15131
+weighted avg     0.9616    0.9600    0.9580     15131
+
+Iteração do Cross Validation Estratificado: 4
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9580    0.9993    0.9782     12459
+           1     0.9958    0.7957    0.8845      2672
+
+    accuracy                         0.9633     15131
+   macro avg     0.9769    0.8975    0.9314     15131
+weighted avg     0.9647    0.9633    0.9617     15131
+
+Iteração do Cross Validation Estratificado: 5
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9556    0.9992    0.9769     12459
+           1     0.9952    0.7837    0.8769      2672
+
+    accuracy                         0.9611     15131
+   macro avg     0.9754    0.8914    0.9269     15131
+weighted avg     0.9626    0.9611    0.9593     15131
+
+Iteração do Cross Validation Estratificado: 6
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9592    0.9998    0.9791     12459
+           1     0.9986    0.8016    0.8893      2671
+
+    accuracy                         0.9648     15130
+   macro avg     0.9789    0.9007    0.9342     15130
+weighted avg     0.9661    0.9648    0.9632     15130
+
+Iteração do Cross Validation Estratificado: 7
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9314    0.9998    0.9644     12459
+           1     0.9989    0.6567    0.7924      2671
+
+    accuracy                         0.9393     15130
+   macro avg     0.9651    0.8283    0.8784     15130
+weighted avg     0.9433    0.9393    0.9341     15130
+
+Iteração do Cross Validation Estratificado: 8
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9602    0.9995    0.9795     12459
+           1     0.9972    0.8068    0.8920      2671
+
+    accuracy                         0.9655     15130
+   macro avg     0.9787    0.9032    0.9357     15130
+weighted avg     0.9667    0.9655    0.9640     15130
+
+Iteração do Cross Validation Estratificado: 9
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9212    0.9991    0.9586     12459
+           1     0.9932    0.6013    0.7491      2671
+
+    accuracy                         0.9289     15130
+   macro avg     0.9572    0.8002    0.8538     15130
+weighted avg     0.9339    0.9289    0.9216     15130
+
+Iteração do Cross Validation Estratificado: 10
+Modelo do servidor
+              precision    recall  f1-score   support
+
+           0     0.9559    0.9998    0.9774     12459
+           1     0.9986    0.7851    0.8791      2671
+
+    accuracy                         0.9619     15130
+   macro avg     0.9773    0.8924    0.9282     15130
+weighted avg     0.9635    0.9619    0.9600     15130
+
