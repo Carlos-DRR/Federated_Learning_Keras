@@ -1,13 +1,14 @@
 import os
-#os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID" #If the line below doesn't work, uncomment this line (make sure to comment the line below); it should help.
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID" #If the line below doesn't work, uncomment this line (make sure to comment the line below); it should help.
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report
-
+import multiprocessing.dummy as mp
 from tensorflow import keras
 import numpy as np
+import multiprocessing
 
+pools = multiprocessing.cpu_count()
 
 class Server:
     '''
@@ -25,6 +26,7 @@ class Server:
         self.dataset_sizes = dataset_sizes
         self.total_datasets_size = self.get_total_datasets_size()
         self.updated_clients_models(self.server_model.get_weights())
+        
     
     #pega a soma do tamanho dos datasets dos clientes
     def get_total_datasets_size(self):
@@ -52,9 +54,11 @@ class Server:
     
     def federated_avarage(self):
         #models = [model1, model2]
+
+        
         models = [client.get_model() for client in self.clients]
         models_weights = [model.get_weights() for model in models]
-        
+
         #print("Pesos antes da federacao")
         #print(models_weights)
         
@@ -79,14 +83,27 @@ class Server:
         #print(*new_weights)
         return new_weights
 
+    def train_single_client(self, client):
+        print("Client: " + str(client.get_client_id()))
+        client.train(self.clients_local_epochs, self.batch_size)
+        
     def train_federated(self):
         new_weights = []
+        
         for i in range(0, self.global_epochs):
             print("Época Global: " + str(i+1))
+            
+
+            #pool.map(self.train_single_client, [client for client in self.clients])
+            pool = mp.Pool(pools)
+            print('Pools: ' +str(pools))
+            pool.map(self.train_single_client, self.clients, chunksize=5)
+            pool.close()
+            '''
             for client in self.clients:
                 print("Client: " + str(client.get_client_id()))
                 client.train(self.clients_local_epochs, self.batch_size)
-
+            '''    
             new_weights = self.federated_avarage()
             
             #print("Pesos federados")
@@ -119,7 +136,7 @@ class Server:
     '''
     def get_metrics(self, validation_set):
         X_test, y_test = self.preprocess_dataset(validation_set)
-        y_pred = self.server_model.predict(X_test)
+        y_pred = self.server_model.predict(X_test, verbose=0)
         y_pred_binary = np.around(y_pred)
         return classification_report(y_test, y_pred_binary, digits=4)
     

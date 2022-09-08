@@ -1,8 +1,7 @@
 import os
 import tensorflow as tf
-#os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID" #If the line below doesn't work, uncomment this line (make sure to comment the line below); it should help.
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID" #If the line below doesn't work, uncomment this line (make sure to comment the line below); it should help.
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 from client import Client
 from tensorflow import keras
@@ -36,7 +35,7 @@ model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.001), loss='binary
 
 #0 é anomalia 1 é normal
 
-base = pd.read_csv('C:/Users/carlo/Desktop/Mestrado/Experimento FL/Etapa 1 - Escolha de modelo e data mining/IoTID20/IoTID20_preprocessada.csv')
+base = pd.read_csv('IoTID20_preprocessada.csv')
 
 skf = StratifiedKFold(n_splits = 10)
 
@@ -44,7 +43,11 @@ base = base.iloc[:, :]
 y = base.iloc[:, len(base.columns) - 1]
 
 skf_iteration = 1
+
+
+
 with open('results.txt', 'w') as f:
+    
     for train_index, test_index in skf.split(base, y):
         train_dataset = base.iloc[train_index]
         test_dataset = base.iloc[test_index]
@@ -64,9 +67,9 @@ with open('results.txt', 'w') as f:
             clients_dataset_sizes.append(client.get_dataset_size())
         
         server = Server(clients_list, clients_dataset_sizes, model, 100, None, 100)
-    
-        server.train_federated()
-                
+        if __name__ ==  '__main__':
+            server.train_federated()
+            
         f.write("Iteração do Cross Validation Estratificado: " + str(skf_iteration))
         f.write('\n')
             
@@ -88,4 +91,4 @@ with open('results.txt', 'w') as f:
         
         
         skf_iteration = skf_iteration + 1
-    
+

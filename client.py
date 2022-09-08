@@ -38,7 +38,7 @@ class Client:
     
     def get_metrics(self, validation_set):
         X_test, y_test = self.preprocess_dataset(validation_set)
-        y_pred = self.model.predict(X_test)
+        y_pred = self.model.predict(X_test, verbose=0)
         y_pred_binary = np.around(y_pred)
 
         return classification_report(y_test, y_pred_binary, digits=4)
